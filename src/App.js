@@ -1,31 +1,36 @@
 import React, { useEffect, useState } from "react";
 import './App.css';
 
-function App() {
-  const [emotion, setEmotion] = useState("happy");
-  const [secondary, setSecondary] = useState("tired");
+// https://api.github.com/users/gwalchmei151
+
+function App({ login }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log(`It's ${emotion} around here!`)
-  }, [emotion]);
+    if(!login) return;
+    setLoading(true);
+    fetch(`https://api.github.com/users/${login}`)
+    .then(response => response.json())
+    .then(setData)
+    .then(() => setLoading(false))
+    .catch(setError);
 
-  useEffect(() => {
-    console.log(`It's ${secondary} around here!`)
-  }, [secondary]);
+  }, [login]);
 
-  return (
-    <>
-      <h1>Current emotion is {emotion} and {secondary}</h1>
-      <button onClick={() => setEmotion
-      ("frustrated")}>Frustrate</button>
-      <button onClick={() => setEmotion
-      ("enthusiastic")}>Enthuse</button>
-      <button onClick={() => setEmotion
-      ("make happy")}>Spark Joy</button>
-      <button onClick={() => setSecondary
-      ("make crabby")}>Make crabby</button>
-    </>
-  )
+  if (loading) return <h1>Loading...</h1>;
+  if (error) return <pre>{JSON.stringify(error, null, 2)} </pre>;
+  if (!data) return null;
+
+
+    return (<div>
+      <h1>{data.login}</h1>
+      <h2>{data.twitter_username}</h2>
+      <p>{data.location}</p>
+      <img alt={data.login} src={data.avatar_url}/>
+    </div>);
+  
 }
 
 export default App;
